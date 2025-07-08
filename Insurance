@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Insurance Premium Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #764ba2;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #28a745;
+        }
+
+        .premium-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .risk-bar {
+            width: 200px;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        .risk-fill {
+            height: 100%;
+            transition: width 0.8s ease;
+        }
+
+        .risk-low { background: #28a745; }
+        .risk-medium { background: #ffc107; }
+        .risk-high { background: #dc3545; }
+
+        .breakdown {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .market-trends {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .trend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .trend-up { color: #dc3545; }
+        .trend-down { color: #28a745; }
+
+        .quote-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .quote-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .quote-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .quote-output {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dynamic Insurance Premium Calculator</h1>
+            <p>AI-Powered Risk Assessment & Pricing Optimization</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2 class="section-title">Risk Assessment</h2>
+                
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" min="18" max="100" value="30">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <select id="location">
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="chennai">Chennai</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="kolkata">Kolkata</option>
+                        <option value="pune">Pune</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="occupation">Occupation</label>
+                    <select id="occupation">
+                        <option value="office">Office Worker</option>
+                        <option value="driver">Driver</option>
+                        <option value="construction">Construction</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="engineer">Engineer</option>
+                        <option value="business">Business Owner</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="smoking">Smoking Status</label>
+                    <select id="smoking">
+                        <option value="never">Never Smoked</option>
+                        <option value="former">Former Smoker</option>
+                        <option value="occasional">Occasional Smoker</option>
+                        <option value="regular">Regular Smoker</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="coverage">Coverage Amount (₹)</label>
+                    <input type="number" id="coverage" min="100000" max="50000000" value="1000000" step="100000">
+                </div>
+
+                <div class="form-group">
+                    <label for="term">Policy Term (Years)</label>
+                    <input type="number" id="term" min="5" max="30" value="20">
+                </div>
+
+                <button class="calculate-btn" onclick="calculatePremium()">Calculate Premium</button>
+            </div>
+
+            <div class="results-section">
+                <h2 class="section-title">Premium Calculation</h2>
+                
+                <div class="results-card">
+                    <div class="premium-amount" id="premiumAmount">₹0</div>
+                    <div style="text-align: center; color: #666;">Monthly Premium</div>
+                    
+                    <div class="risk-indicator">
+                        <span>Low Risk</span>
+                        <div class="risk-bar">
+                            <div class="risk-fill" id="riskFill"></div>
+                        </div>
+                        <span>High Risk</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <span id="riskLabel">Risk Level: Medium</span>
+                    </div>
+                </div>
+
+                <div class="breakdown">
+                    <h3 style="margin-bottom: 15px; color: #333;">Premium Breakdown</h3>
+                    <div class="breakdown-item">
+                        <span>Base Premium:</span>
+                        <span id="basePremium">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Age Factor:</span>
+                        <span id="ageFactor">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Risk Adjustment:</span>
+                        <span id="riskAdjustment">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Market Adjustment:</span>
+                        <span id="marketAdjustment">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Monthly Premium:</span>
+                        <span id="totalPremium">₹0</span>
+                    </div>
+                </div>
+
+                <div class="market-trends">
+                    <h3 style="margin-bottom: 15px; color: #333;">Market Trends</h3>
+                    <div class="trend-item">
+                        <span>Healthcare Costs:</span>
+                        <span class="trend-up">+5.2%</span>
+                    </div>
+                    <div class="trend-item">
+                        <span>Life Expectancy:</span>
+                        <span class="trend-down">-2.1%</span>
+                    </div>
+                    <div class="trend-item">
+                        <span>Market Volatility:</span>
+                        <span class="trend-up">+3.8%</span>
+                    </div>
+                    <div class="trend-item">
+                        <span>Regulatory Changes:</span>
+                        <span class="trend-down">-1.5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quote-section">
+                <h2 class="section-title">Quote Generator</h2>
+                <button class="quote-btn" onclick="generateQuote()">Generate Detailed Quote</button>
+                <button class="quote-btn" onclick="downloadQuote()">Download Quote</button>
+                <div class="quote-output" id="quoteOutput" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Risk Assessment Engine
+        class RiskAssessment {
+            constructor() {
+                this.riskFactors = {
+                    age: { low: [25, 45], medium: [18, 25, 45, 65], high: [65, 100] },
+                    gender: { male: 1.1, female: 0.9, other: 1.0 },
+                    location: {
+                        mumbai: 1.2, delhi: 1.15, bangalore: 1.0, chennai: 1.05,
+                        hyderabad: 0.95, kolkata: 1.1, pune: 1.0, other: 1.0
+                    },
+                    occupation: {
+                        office: 0.9, driver: 1.3, construction: 1.5, healthcare: 1.1,
+                        teacher: 0.8, engineer: 0.85, business: 1.2, student: 0.7
+                    },
+                    smoking: {
+                        never: 0.8, former: 1.1, occasional: 1.4, regular: 1.8
+                    }
+                };
+                this.marketTrends = {
+                    healthcareCosts: 0.052,
+                    lifeExpectancy: -0.021,
+                    marketVolatility: 0.038,
+                    regulatoryChanges: -0.015
+                };
+            }
+
+            calculateRiskScore(profile) {
+                let riskScore = 1.0;
+                
+                // Age factor
+                if (profile.age <= 25 || profile.age >= 65) {
+                    riskScore *= 1.3;
+                } else if (profile.age <= 45) {
+                    riskScore *= 0.9;
+                } else {
+                    riskScore *= 1.1;
+                }
+
+                // Gender factor
+                riskScore *= this.riskFactors.gender[profile.gender];
+
+                // Location factor
+                riskScore *= this.riskFactors.location[profile.location];
+
+                // Occupation factor
+                riskScore *= this.riskFactors.occupation[profile.occupation];
+
+                // Smoking factor
+                riskScore *= this.riskFactors.smoking[profile.smoking];
+
+                return Math.max(0.5, Math.min(2.5, riskScore));
+            }
+
+            getRiskLevel(score) {
+                if (score <= 0.9) return 'Low';
+                if (score <= 1.4) return 'Medium';
+                return 'High';
+            }
+        }
+
+        // Pricing Calculator
+        class PricingCalculator {
+            constructor() {
+                this.basePremiumRate = 0.008; // 0.8% of coverage per year
+                this.riskEngine = new RiskAssessment();
+            }
+
+            calculatePremium(profile) {
+                const { coverage, term } = profile;
+                
+                // Base premium calculation
+                const basePremium = (coverage * this.basePremiumRate) / 12;
+                
+                // Risk adjustment
+                const riskScore = this.riskEngine.calculateRiskScore(profile);
+                const riskAdjustedPremium = basePremium * riskScore;
+                
+                // Market adjustment
+                const marketMultiplier = 1 + 
+                    this.riskEngine.marketTrends.healthcareCosts +
+                    this.riskEngine.marketTrends.marketVolatility;
+                const marketAdjustedPremium = riskAdjustedPremium * marketMultiplier;
+                
+                // Term adjustment
+                const termMultiplier = term > 20 ? 0.95 : term < 10 ? 1.1 : 1.0;
+                const finalPremium = marketAdjustedPremium * termMultiplier;
+                
+                return {
+                    basePremium: Math.round(basePremium),
+                    riskScore: riskScore,
+                    riskAdjustment: Math.round(riskAdjustedPremium - basePremium),
+                    marketAdjustment: Math.round(marketAdjustedPremium - riskAdjustedPremium),
+                    totalPremium: Math.round(finalPremium),
+                    ageFactor: Math.round(basePremium * 0.1 * (profile.age > 40 ? 1.5 : 0.8))
+                };
+            }
+        }
+
+        // Market Analyzer
+        class MarketAnalyzer {
+            constructor() {
+                this.trends = {
+                    healthcare: 5.2,
+                    lifeExpectancy: -2.1,
+                    volatility: 3.8,
+                    regulatory: -1.5
+                };
+            }
+
+            getMarketConditions() {
+                return {
+                    competitive: Math.random() > 0.5,
+                    growthRate: 4.5 + (Math.random() - 0.5) * 2,
+                    riskIndex: 0.7 + Math.random() * 0.6
+                };
+            }
+        }
+
+        // Quote Generator
+        class QuoteGenerator {
+            constructor(calculator) {
+                this.calculator = calculator;
+            }
+
+            generateQuote(profile, premiumData) {
+                const quote = {
+                    id: 'INS-' + Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    profile: profile,
+                    premium: premiumData,
+                    terms: this.generateTerms(),
+                    benefits: this.generateBenefits(profile.coverage),
+                    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+                };
+
+                return quote;
+            }
+
+            generateTerms() {
+                return [
+                    "Policy is subject to medical underwriting",
+                    "Premium rates are guaranteed for the first 5 years",
+                    "30-day free look period applies",
+                    "Claim settlement within 15 working days",
+                    "Coverage includes accidental death benefit",
+                    "Maturity benefit equal to sum assured"
+                ];
+            }
+
+            generateBenefits(coverage) {
+                return [
+                    `Life Cover: ₹${coverage.toLocaleString()}`,
+                    `Accidental Death: ₹${(coverage * 2).toLocaleString()}`,
+                    `Terminal Illness: ₹${coverage.toLocaleString()}`,
+                    `Premium Waiver: Up to ₹${(coverage * 0.1).toLocaleString()}`,
+                    `Tax Benefits: Under Section 80C`,
+                    `Free Health Check-up: Annual`
+                ];
+            }
+        }
+
+        // Initialize components
+        const calculator = new PricingCalculator();
+        const quoteGenerator = new QuoteGenerator(calculator);
+        let currentQuote = null;
+
+        function calculatePremium() {
+            const profile = {
+                age: parseInt(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                location: document.getElementById('location').value,
+                occupation: document.getElementById('occupation').value,
+                smoking: document.getElementById('smoking').value,
+                coverage: parseInt(document.getElementById('coverage').value),
+                term: parseInt(document.getElementById('term').value)
+            };
+
+            const premiumData = calculator.calculatePremium(profile);
+            displayResults(premiumData);
+            
+            // Store for quote generation
+            currentQuote = { profile, premiumData };
+        }
+
+        function displayResults(data) {
+            // Update premium amount
+            document.getElementById('premiumAmount').textContent = `₹${data.totalPremium.toLocaleString()}`;
+            
+            // Update risk indicator
+            const riskFill = document.getElementById('riskFill');
+            const riskLabel = document.getElementById('riskLabel');
+            const riskPercent = Math.min(100, (data.riskScore / 2.5) * 100);
+            
+            riskFill.style.width = `${riskPercent}%`;
+            
+            if (data.riskScore <= 0.9) {
+                riskFill.className = 'risk-fill risk-low';
+                riskLabel.textContent = 'Risk Level: Low';
+            } else if (data.riskScore <= 1.4) {
+                riskFill.className = 'risk-fill risk-medium';
+                riskLabel.textContent = 'Risk Level: Medium';
+            } else {
+                riskFill.className = 'risk-fill risk-high';
+                riskLabel.textContent = 'Risk Level: High';
+            }
+            
+            // Update breakdown
+            document.getElementById('basePremium').textContent = `₹${data.basePremium.toLocaleString()}`;
+            document.getElementById('ageFactor').textContent = `₹${data.ageFactor.toLocaleString()}`;
+            document.getElementById('riskAdjustment').textContent = `₹${data.riskAdjustment.toLocaleString()}`;
+            document.getElementById('marketAdjustment').textContent = `₹${data.marketAdjustment.toLocaleString()}`;
+            document.getElementById('totalPremium').textContent = `₹${data.totalPremium.toLocaleString()}`;
+        }
+
+        function generateQuote() {
+            if (!currentQuote) {
+                alert('Please calculate premium first!');
+                return;
+            }
+
+            const quote = quoteGenerator.generateQuote(currentQuote.profile, currentQuote.premiumData);
+            displayQuote(quote);
+        }
+
+        function displayQuote(quote) {
+            const output = document.getElementById('quoteOutput');
+            output.style.display = 'block';
+            
+            output.innerHTML = `
+                <h3>Insurance Quote - ${quote.id}</h3>
+                <p><strong>Generated:</strong> ${quote.timestamp}</p>
+                <p><strong>Valid Until:</strong> ${quote.validUntil}</p>
+                
+                <h4>Applicant Details</h4>
+                <p>Age: ${quote.profile.age} years</p>
+                <p>Gender: ${quote.profile.gender}</p>
+                <p>Location: ${quote.profile.location}</p>
+                <p>Occupation: ${quote.profile.occupation}</p>
+                <p>Smoking Status: ${quote.profile.smoking}</p>
+                
+                <h4>Coverage Details</h4>
+                <p>Sum Assured: ₹${quote.profile.coverage.toLocaleString()}</p>
+                <p>Policy Term: ${quote.profile.term} years</p>
+                <p>Monthly Premium: ₹${quote.premium.totalPremium.toLocaleString()}</p>
+                <p>Annual Premium: ₹${(quote.premium.totalPremium * 12).toLocaleString()}</p>
+                
+                <h4>Benefits</h4>
+                <ul>
+                    ${quote.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                </ul>
+                
+                <h4>Terms & Conditions</h4>
+                <ul>
+                    ${quote.terms.map(term => `<li>${term}</li>`).join('')}
+                </ul>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px;">
+                    <p><strong>Next Steps:</strong></p>
+                    <p>1. Complete medical examination</p>
+                    <p>2. Submit required documents</p>
+                    <p>3. Pay first premium</p>
+                    <p>4. Receive policy document</p>
+                </div>
+            `;
+        }
+
+        function downloadQuote() {
+            if (!currentQuote) {
+                alert('Please generate a quote first!');
+                return;
+            }
+
+            const quote = quoteGenerator.generateQuote(currentQuote.profile, currentQuote.premiumData);
+            const content = `
+INSURANCE QUOTE
+===============
+
+Quote ID: ${quote.id}
+Generated: ${quote.timestamp}
+Valid Until: ${quote.validUntil}
+
+APPLICANT DETAILS
+================
+Age: ${quote.profile.age} years
+Gender: ${quote.profile.gender}
+Location: ${quote.profile.location}
+Occupation: ${quote.profile.occupation}
+Smoking Status: ${quote.profile.smoking}
+
+COVERAGE DETAILS
+===============
+Sum Assured: ₹${quote.profile.coverage.toLocaleString()}
+Policy Term: ${quote.profile.term} years
+Monthly Premium: ₹${quote.premium.totalPremium.toLocaleString()}
+Annual Premium: ₹${(quote.premium.totalPremium * 12).toLocaleString()}
+
+BENEFITS
+========
+${quote.benefits.map(benefit => `• ${benefit}`).join('\n')}
+
+TERMS & CONDITIONS
+==================
+${quote.terms.map(term => `• ${term}`).join('\n')}
+
+NEXT STEPS
+==========
+1. Complete medical examination
+2. Submit required documents
+3. Pay first premium
+4. Receive policy document
+
+---
+This quote is system generated and valid for 30 days from the date of generation.
+            `;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `insurance_quote_${quote.id}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize with default calculation
+        window.onload = function() {
+            calculatePremium();
+        };
+    </script>
+</body>
+</html>
